@@ -1,7 +1,12 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React, {useState} from 'react';
-import {CardField, createToken} from '@stripe/stripe-react-native';
+import {
+  CardField,
+  confirmPayment,
+  createToken,
+} from '@stripe/stripe-react-native';
 import Button from '../components/Button';
+import createPaymentIntent from '../api/stripeApi';
 
 const PaymentScreen = () => {
   const [cardInfo, setCardInfo] = useState(null);
@@ -13,12 +18,32 @@ const PaymentScreen = () => {
     }
   };
   const onDone = async () => {
+    let apiData = {
+      amount: 502,
+      currency: 'eur',
+    };
     if (cardInfo) {
       try {
-        const resToken = await createToken({...cardInfo, type: 'Card'});
+        const res = await createPaymentIntent(apiData);
+        console.log('Payment intent genrate successfully', res);
+        if (res?.data?.paymentIntent) {
+          let confirmPaymentIntent = await confirmPayment(
+            res?.data?.paymentIntent,
+            {
+              paymentMethodType: 'Card',
+            },
+          );
+          console.log('confirmPaymentIntent', confirmPaymentIntent);
+          alert('Payment SuccessFully');
+        }
       } catch (error) {
-        console.log('ERROR DURING TOKEN GENERATION');
+        console.log('ERROR', error.message);
       }
+      //   try {
+      //     const resToken = await createToken({...cardInfo, type: 'Card'});
+      //   } catch (error) {
+      //     console.log('ERROR DURING TOKEN GENERATION');
+      //   }
     }
     console.log('MY CARD is ', cardInfo);
   };
