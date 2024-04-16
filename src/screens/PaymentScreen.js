@@ -16,7 +16,6 @@ const PaymentScreen = () => {
     if (cardInfo) {
       try {
         const resToken = await createToken({...cardInfo, type: 'Card'});
-        console.log('RESPONSE TOKEN -->', resToken);
       } catch (error) {
         console.log('ERROR DURING TOKEN GENERATION');
       }
